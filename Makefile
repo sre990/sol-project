@@ -1,49 +1,87 @@
-# Thanks to Job Vranish (https://spin.atomicobject.com/2016/08/26/makefile-c-projects/)
-TARGET_EXEC := final_program
+CC = gcc
+CFLAGS += -std=c99 -Wall -g
+INCLUDES = -I ./includes/
+OPT = -lpthread
 
 BUILD_DIR := ./build
-SRC_DIRS := ./src
+OBJ_DIR := ./obj
+SRC_DIR := ./src
+TEST_DIR := ./tests
+HEADERS_DIR = ./includes/
+STUBS_DIR = ./stubs
 
-# Find all the C and C++ files we want to compile
-SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c)
+TARGETS = server client
 
-# String substitution for every C/C++ file.
-# As an example, hello.cpp turns into ./build/hello.cpp.o
-OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+.DEFAULT_GOAL := all
 
-# String substitution (suffix version without %).
-# As an example, ./build/hello.cpp.o turns into ./build/hello.cpp.d
-DEPS := $(OBJS:.o=.d)
+SERVER_OBJS = obj/node.o obj/linked_list.o obj/hash_table.o obj/rw_lock.o obj/parser.o obj/cache.o obj/bounded_buffer.o obj/server.o
+CLIENT_OBJS = obj/node.o obj/linked_list.o obj/api.o obj/client.o
 
-# Every folder in ./src will need to be passed to GCC so that it can find header files
-INC_DIRS := $(shell find $(SRC_DIRS) -type d)
-# Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
-INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+obj/node.o:
+	$(CC) $(CFLAGS) $(INCLUDES) -c utils/node.c $(OPT)
+	@mv node.o $(OBJ_DIR)/node.o
 
-# The -MMD and -MP flags together generate Makefiles for us!
-# These files will have .d instead of .o as the output.
-CPPFLAGS := $(INC_FLAGS) -MMD -MP
+obj/linked_list.o:
+	$(CC) $(CFLAGS) $(INCLUDES) -c utils/linked_list.c $(OPT)
+	@mv linked_list.o $(OBJ_DIR)/linked_list.o
 
-# The final build step.
-$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CC) $(OBJS) -o $@ $(LDFLAGS)
+obj/hash_table.o:
+	$(CC) $(CFLAGS) $(INCLUDES) -c utils/hash_table.c $(OPT)
+	@mv hash_table.o $(OBJ_DIR)/hash_table.o
 
-# Build step for C source
-$(BUILD_DIR)/%.c.o: %.c
-	mkdir -p $(dir $@)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+obj/rw_lock.o:
+	$(CC) $(CFLAGS) $(INCLUDES) -c utils/rw_lock.c $(OPT)
+	@mv rw_lock.o $(OBJ_DIR)/rw_lock.o
 
-# Build step for C++ source
-$(BUILD_DIR)/%.cpp.o: %.cpp
-	mkdir -p $(dir $@)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+obj/parser.o:
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/parser.c $(OPT)
+	@mv parser.o $(OBJ_DIR)/parser.o
 
+obj/cache.o:
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/cache.c $(OPT)
+	@mv cache.o $(OBJ_DIR)/cache.o
 
-.PHONY: clean
-clean:
-	rm -r $(BUILD_DIR)
+obj/bounded_buffer.o:
+	$(CC) $(CFLAGS) $(INCLUDES) -c utils/bounded_buffer.c $(OPT)
+	@mv bounded_buffer.o $(OBJ_DIR)/bounded_buffer.o
 
-# Include the .d makefiles. The - at the front suppresses the errors of missing
-# Makefiles. Initially, all the .d files will be missing, and we don't want those
-# errors to show up.
--include $(DEPS)
+obj/server.o:
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/server.c $(OPT)
+	@mv server.o $(OBJ_DIR)/server.o
+
+obj/api.o:
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/api.c $(OPT)
+	@mv api.o $(OBJ_DIR)/api.o
+
+obj/client.o:
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/client.c $(OPT)
+	@mv client.o $(OBJ_DIR)/client.o
+
+client: $(CLIENT_OBJS)
+	$(CC) $(CFLAGS) -o $(BUILD_DIR)/client $(CLIENT_OBJS) $(OPT)
+
+server: $(SERVER_OBJS)
+	$(CC) $(CFLAGS) -o $(BUILD_DIR)/server $(SERVER_OBJS) $(OPT)
+
+test1: client server
+	@echo "NUMBER OF WORKER THREADS = 1\nMAX NUMBER OF FILES ACCEPTED = 10000\nMAX CACHE SIZE = 128000000\nSOCKET FILE PATH = $(PWD)/LSOfilestorage.sk\nLOG FILE PATH = $(PWD)/logs/FIFO1.log\nREPLACEMENT POLICY = 0" > config1.txt
+	@chmod +x tests/test1.sh
+	tests/test1.sh
+
+test2: client server
+	@echo "NUMBER OF WORKER THREADS = 4\nMAX NUMBER OF FILES ACCEPTED = 10\nMAX CACHE SIZE = 1000000\nSOCKET FILE PATH = $(PWD)/LSOfilestorage.sk\nLOG FILE PATH = $(PWD)/logs/FIFO2.log\nREPLACEMENT POLICY = 0" > config2.txt
+	@chmod +x tests/test2.sh
+	tests/test2.sh
+
+test3: client server
+	@echo "NUMBER OF WORKER THREADS = 8\nMAX NUMBER OF FILES ACCEPTED = 100\nMAX CACHE SIZE = 32000000\nSOCKET FILE PATH = $(PWD)/LSOfilestorage.sk\nLOG FILE PATH = $(PWD)/logs/FIFO3.log\nREPLACEMENT POLICY = 0" > config3.txt
+	@chmod +x tests/test3_stress.sh
+	@chmod +x tests/test3.sh
+	tests/test3_stress.sh
+
+.PHONY: clean cleanall all stubs
+all: $(TARGETS)
+clean cleanall:
+	rm -rf $(BUILD_DIR)/* $(OBJ_DIR)/* logs/*.log *.sk test1 test2 test3 stubs* *.txt
+	@touch $(BUILD_DIR)/.keep
+	@touch $(OBJ_DIR)/.keep
