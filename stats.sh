@@ -29,16 +29,16 @@ echo -e "total reading operations size: ${READ_BYTES} bytes."
 
 # making sure we are not dividing by 0
 if [ ${READFILE} -gt 0 ]; then
-	MEAN_READFILES=$(echo "${READFILE_BYTES} / ${READFILE}" | bc -l)
-	echo -e "readFile mean: ${MEAN_READFILES} bytes."
+	MEAN_READFILE=$(echo "scale=5;${READFILE_BYTES} / ${READFILE}" | bc -l)
+	echo -e "readFile mean: ${MEAN_READFILE} bytes."
 fi
 if [ ${READNFILES} -gt 0 ]; then
-	MEAN_READNFILES=$(echo "${READNFILES_BYTES} / ${READNFILES}" | bc -l)
+	MEAN_READNFILES=$(echo "scale=5;${READNFILES_BYTES} / ${READNFILES}" | bc -l)
 	echo -e "readNFiles mean: ${MEAN_READNFILES} bytes."
 fi
 if [ ${READS} -gt 0 ]; then
-	MEAN_READ=$(echo "${READ_BYTES} / ${READS}" | bc -l)
-	echo -e "total mean: ${MEAN_READ} bytes."
+	MEAN_READS=$(echo "scale=5;${READ_BYTES} / ${READS}" | bc -l)
+	echo -e "total mean: ${MEAN_READS} bytes."
 fi
 
 
@@ -55,19 +55,20 @@ echo -e "writeFile operations: ${WRITEFILE}."
 echo -e "writeFile: ${WRITEFILE_BYTES} bytes."
 echo -e "appendToFile operations: ${APPENDTOFILE}."
 echo -e "append size: ${APPENDTOFILE_BYTES} bytes."
+echo -e "total number of writes: ${WRITES}."
 echo -e "total writing operations size: ${WRITE_BYTES} bytes."
 
 # making sure we are not dividing by 0
 if [ ${WRITEFILE} -gt 0 ]; then
-	MEAN_WRITEFILE=$(echo "${WRITEFILE_BYTES} / ${WRITEFILE}" | bc -l)
+	MEAN_WRITEFILE=$(echo "scale=5;${WRITEFILE_BYTES} / ${WRITEFILE}" | bc -l)
 	echo -e "writeFile mean: ${MEAN_WRITEFILE} bytes."
 fi
 if [ ${APPENDTOFILE} -gt 0 ]; then
-	MEAN_APPENDTOFILE=$(echo "${APPENDTOFILE_BYTES} / ${APPENDTOFILE}" | bc -l)
+	MEAN_APPENDTOFILE=$(echo "scale=5;${APPENDTOFILE_BYTES} / ${APPENDTOFILE}" | bc -l)
 	echo -e "appendToFile mean: ${MEAN_APPENDTOFILE} bytes."
 fi
 if [ ${WRITEFILE} -gt 0 ]; then
-	MEAN_WRITE=$(echo "${WRITE_BYTES} / ${WRITES}" | bc -l)
+	MEAN_WRITE=$(echo "scale=5;${WRITE_BYTES} / ${WRITES}" | bc -l)
 	echo -e "total mean: ${MEAN_WRITE} bytes."
 fi
 
@@ -79,11 +80,20 @@ UNLOCKFILE=$(grep "unlockFile" -c $LOG_FILE)
 OPENFILECREATELOCK=$(grep -cE "openFile.* 3 : " $LOG_FILE)
 OPENFILELOCK=$(grep -cE "openFile.* 2 : " $LOG_FILE)
 OPENLOCK=$((OPENFILECREATELOCK+OPENFILELOCK))
-CLOSEFILE=$(grep "closeFile" -c $LOG_FILE)
 echo -e "lockFile operations: ${LOCKFILE}."
 echo -e "unlockFile operations: ${UNLOCKFILE}."
 echo -e "open and lock operations: ${OPENLOCK}."
+
+echo -e "-${BOLD}MISC. OPERATIONS${RESET}-"
+REMOVEFILE=$(grep "removeFile" -c $LOG_FILE)
+OPENFILE=$(grep -cE "openFile.* 0 : " $LOG_FILE)
+OPENS=$((OPENFILE+OPENLOCK))
+CLOSEFILE=$(grep "closeFile" -c $LOG_FILE)
+echo -e "openFile operations: ${OPENFILE}."
+echo -e "total number of opens: ${OPENS}."
 echo -e "closeFile operations: ${CLOSEFILE}."
+echo -e "removeFile operations: ${REMOVEFILE}."
+
 
 
 echo -e "-${BOLD}CACHING${RESET}-"
@@ -92,19 +102,18 @@ VICTIMS=$(grep -E "Victims : [1-9+]" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\
 MAXSIZE_BYTES=$(grep "Maximum size" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g')
 MAXSIZE_MBYTES=$(echo "${MAXSIZE_BYTES} * 0.000001" | bc -l)
 MAXFILES=$(grep "Maximum file" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g')
-echo -e "Replacement algorithms was executed: ${VICTIMS} time(s)."
-echo -e "Maximum size reached by storage: ${MAXSIZE_MBYTES}MBytes."
-echo -e "Maximum files reached by storage: ${MAXFILES}."
+echo -e "Replacement algorithm was executed: ${VICTIMS} time(s)."
+echo -e "Maximum size reached by cache: ${MAXSIZE_MBYTES}MBytes."
+echo -e "Maximum files reached by cache: ${MAXFILES}."
 
 echo -e "-${BOLD}REQUESTS HANDLED PER WORKER${RESET}-"
 # log files have worker ids in curly brackets, counting requests per worker
 REQUESTS=$(grep -oP '\[.*?\]' $LOG_FILE  | sort | uniq -c | sed -e 's/[ \t]*//' | sed 's/[][]//g')
 while IFS= read -r line; do
 	array=($line)
-	echo -e "worker with ID number ${array[1]} has handled ${array[0]} requests."
+	echo -e "[ID:${array[1]}] Number of requests handled by worker: ${array[0]}."
 done <<< "$REQUESTS"
 
 echo -e "-${BOLD}ONLINE CLIENTS${RESET}-"
 MAXCLIENTS=$(grep "Current online clients : " $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g' | sort -g -r | head -1)
 echo -e "Maximum number of online clients: ${MAXCLIENTS}."
-
