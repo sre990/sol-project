@@ -3,8 +3,8 @@
  *
 */
 
-#ifndef _OPS_H_
-#define _OPS_H_
+#ifndef _DEFINES_H_
+#define _DEFINES_H_
 
 #define MBYTE 0.000001f
 
@@ -37,6 +37,9 @@
 #define O_CREATE_TGL(mask) (mask & 1)
 #define O_LOCK_TGL(mask) ((mask >> 1) & 1)
 
+//save file read
+#define SAVE 1
+#define DISCARD 0
 // codes for outcome of operations
 #define OP_EXIT_FATAL -1
 #define OP_SUCCESS 0

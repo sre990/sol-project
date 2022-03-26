@@ -46,41 +46,21 @@ static inline int readn(long fd, void* ptr, size_t n){
  * @note taken from http://didawiki.di.unipi.it/doku.php/informatica/sol/laboratorio21/esercitazionib/readnwriten
  */
 static inline int writen(long fd, void* ptr, size_t n){
-      size_t   nleft;
-      ssize_t  nwritten;
+   size_t   nleft;
+   ssize_t  nwritten;
 
-      nleft = n;
-      while (nleft > 0) {
-         if((nwritten = write(fd, ptr, nleft)) < 0) {
-            if (nleft == n) return -1; /* error, return -1 */
-            else break; /* error, return amount written so far */
-         } else if (nwritten == 0) break;
-         nleft -= nwritten;
-         ptr   += nwritten;
-      }
-      return(n - nleft); /* return >= 0 */
+   nleft = n;
+   while (nleft > 0) {
+      if((nwritten = write(fd, ptr, nleft)) < 0) {
+         if (nleft == n) return -1; /* error, return -1 */
+         else break; /* error, return amount written so far */
+      } else if (nwritten == 0) break;
+      nleft -= nwritten;
+      ptr   += nwritten;
    }
-
-/**
- * @brief checks if the string is a number.
- * @returns 0 on success, 1 on failure, to for under/overflow.
- * @note taken from http://didawiki.di.unipi.it/doku.php/informatica/sol/laboratorio21
-*/
-static inline int isNumber(const char* s, long* n){
-   if (!n || !s || strlen(s) == 0){
-      errno = EINVAL;
-      return 1;
-   }
-   char* e = NULL;
-   errno = 0;
-   long val = strtol(s, &e, 10);
-   if (errno == ERANGE) return 2;
-   if (e != NULL && *e == (char)0){
-      *n = val;
-      return 0;
-   }
-   return 1;
+   return(n - nleft); /* return >= 0 */
 }
+
 
 /**
  * @brief mimics the mkdir -p command in C.
