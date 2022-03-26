@@ -42,6 +42,7 @@
 #define OP_SUCCESS 0
 #define OP_FAILURE 1
 
+#define BUF_LEN_MAX 512
 #define ERRNO_LEN_MAX 4 // used for errno strings
 #define PATH_LEN_MAX 108 // max length of paths(UNIX standard)
 #define SIZE_LEN 32
@@ -49,12 +50,53 @@
 #define ERROR_LEN_MAX 128 // max length for errno description string
 #define OP_LEN_MAX 2
 
-/**
- * @brief printing to stdout if flag is true.
-*/
+// returns the max between two numbers
+#define MAX(a, b) ((a >= b) ? (a) : (b))
+
+//prints to stdout if flag is true
 #define PRINT_IF(flag, ...) \
 	if (flag) fprintf(stdout, __VA_ARGS__);
 
+//server defines
+#define SHUTDOWN_WORKER 0
+#define PIPE_LEN_MAX 10
+#define TASK_LEN_MAX 32
+//client defines
+#define CMD_LEN_MAX 2
+#define MAX_NAME 128
+#define ARG_LEN_MAX 2048
+//checking command line options permitted by client
+#define CHECK_OPT(character) \
+	(character == 'h' || character == 'f' || character == 'w' || \
+	character == 'W' || character == 'd' || character == 'D' || \
+	character == 'r' || character == 'R' || character == 't' || \
+	character == 'l' || character == 'u' || character == 'c' || \
+	character == 'p')
+
+//helper message to be displayed by the client
+#define H_USAGE \
+"Client accepts these command line arguments:\n"\
+"-h : prints this message.\n"\
+"-f <filename> : connects to given socket.\n"\
+"-w <dirname>[,n=0] : sends to server up to n files in given directory and its subdirectories.\n"\
+"-W <file1>[,file2] : sends to server given files.\n"\
+"-D <dirname> : specifies the folder evicted files are to be sent to.\n"\
+"-r <file1>[,file2] : reads given files from server.\n"\
+"-R [n=0] : reads at least n files from server (if unspecified, it reads every file).\n"\
+"-d <dirname> : specifies the folder read files are to be stored in.\n"\
+"-t <time> : specifies time to wait between requests.\n"\
+"-l <file1>[,file2] : requests lock over given files.\n"\
+"-u <file1>[,file2] : releases lock over given files.\n"\
+"-c <file1>[,file2] : requests server to remove given files.\n"\
+"-p : enables output on stdout.\n"
+
+//used for logging purposes
+#define LOG_EVENT(...) \
+do { \
+	if (pthread_mutex_lock(&log_mutex) != 0) { perror("pthread_mutex_lock"); exit(1); } \
+	fprintf(log_file, __VA_ARGS__); \
+	if (pthread_mutex_unlock(&log_mutex) != 0) { perror("pthread_mutex_unlock"); exit(1); } \
+} while(0);
 
 // enumerates all possible operations
 typedef enum _ops{
@@ -73,12 +115,9 @@ typedef enum _ops{
 // enumerates all possible replacement policies
 typedef enum _policy{
 	FIFO,
-	LFU,
-	LRU
+	LRU,
+   LFU
 } policy_t;
 
-
-// returns the maximum between two
-#define MAX(a, b) ((a >= b) ? (a) : (b))
 
 #endif

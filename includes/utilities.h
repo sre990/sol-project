@@ -16,7 +16,11 @@
 #include <error_handlers.h>
 #include <defines.h>
 #include <api.h>
+#include <dirent.h>
+#include "linked_list.h"
 
+// mutex for logging purposes
+pthread_mutex_t log_mutex;
 /**
  * @brief writes n bytes to file descriptor and copies them to ptr
  * @note taken from http://didawiki.di.unipi.it/doku.php/informatica/sol/laboratorio21/esercitazionib/readnwriten
@@ -95,7 +99,7 @@ static inline int mkdir_p(const char *path){
    char _path[PATH_MAX];
    char *p;
    errno = 0;
-   /* Copy string so its mutable */
+
    if (len > sizeof(_path)-1){
       errno = ENAMETOOLONG;
       return -1;
@@ -114,8 +118,8 @@ static inline int mkdir_p(const char *path){
          *p = '/';
       }
    }
-   //creates the last, innermost, directory
-   //if it exists already, ignore the error
+   //creates the last innermost directory
+   //if it exists already, ignore the error if not
    if (mkdir(_path, S_IRWXU) != 0){
       if (errno != EEXIST)
          return -1;
@@ -186,6 +190,8 @@ static inline int is_file(const char *path){
       return 1;
    return 0;
 }
+
+
 /**
  * @brief utility for handling failure within the api, it takes a failing operation with
  * its arguments and prints the outcome to stdout

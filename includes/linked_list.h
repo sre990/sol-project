@@ -19,8 +19,8 @@ typedef struct _node node_t;
  * @param free_data pointer to function to free allocated resources for the node.
  * @exception errno is set to EINVAL for invalid params, to ENOMEM for malloc failure.
 */
-node_t* node_create(const char* key, size_t key_size, const void* data,
-            size_t data_size, void (*free_data) (void*));
+node_t* node_create(const char* key, size_t key_size, const void* val,
+            size_t val_size, void (*free_data) (void*));
 
 /**
  * @brief sets a node successor.
@@ -64,13 +64,13 @@ const node_t* node_get_prev(const node_t* node);
 int node_save_key(const node_t* node, char** key_ptr);
 
 /**
- * @brief saves a node's value to data_ptr.
+ * @brief saves a node's value to val_ptr.
  * @returns size of saved value on success, 0 on failure.
  * @param node must be != NULL.
- * @param data_ptr must be != NULL.
+ * @param val_ptr must be != NULL.
  * @exception errno is set to EINVAL for invalid params, to ENOMEM for malloc failure.
 */
-size_t node_save_data(const node_t* node, void** data_ptr);
+size_t node_save_val(const node_t* node, void** val_ptr);
 
 /**
  * @brief gets a node's value.
@@ -80,11 +80,6 @@ size_t node_save_data(const node_t* node, void** data_ptr);
 */
 const void* node_get_value(const node_t* node);
 
-/**
- * @brief removes a node.
- * @node
-*/
-void node_remove(node_t* node);
 
 /**
  * @brief frees resources allocated for the node.
@@ -106,13 +101,6 @@ linked_list_t* list_create(void (*free_data) (void*));
 const node_t* list_get_first(const linked_list_t* list);
 
 /**
- * @brief gets the last element in a doubly linked list.
- * @param list
- * @returns last element of if non-empty, NULL on empty lists.
-*/
-const node_t* list_get_last(const linked_list_t* list);
-
-/**
  * @brief gets the number of elements in a doubly linked list.
  * @returns the number of elements in a list.
  * @param list
@@ -127,7 +115,7 @@ unsigned long list_get_size(const linked_list_t* list);
  * @exception errno is set to EINVAL for invalid params, to ENOMEM for malloc failure.
 */
 int list_push_to_front(linked_list_t* list, const char* key,
-			size_t key_size, const void* data, size_t data_size);
+			size_t key_size, const void* val, size_t val_size);
 
 /**
  * @brief pushes a new node to the back of the list, given a key-value pair.
@@ -137,27 +125,29 @@ int list_push_to_front(linked_list_t* list, const char* key,
  * @exception errno is set to EINVAL for invalid params, to ENOMEM for malloc failure.
 */
 int list_push_to_back(linked_list_t* list, const char* key,
-			size_t key_size, const void* data, size_t data_size);
+			size_t key_size, const void* val, size_t val_size);
 
 /**
- * @brief pops the first element of the list and saves its key and data to key_ptr and data_ptr resp.
+ * @brief pops the first element of the list and frees its key and val pointed
+ * to by key_ptr and val_ptr resp.
  * @returns size of saved value on success, 0 on failure
  * @param list must be != NULL and != empty.
  * @param key_ptr may be null.
- * @param data_ptr may be null.
+ * @param val_ptr may be null.
  * @exception errno is set to EINVAL for invalid params, to ENOMEM for malloc failure.
 */
-size_t list_pop_from_front(linked_list_t* list, char** key_ptr, void** data_ptr);
+size_t list_pop_from_front(linked_list_t* list, char** key_ptr, void** val_ptr);
 
 /**
- * @brief pops the last element of the list and saves its key and data to key_ptr and data_ptr resp.
+ * @brief pops the last element of the list and frees its key and val pointed
+ * to by key_ptr and val_ptr resp.
  * @returns size of saved value on success, 0 on failure
  * @param list must be != NULL and != empty.
  * @param key_ptr may be null.
- * @param data_ptr may be null.
+ * @param val_ptr may be null.
  * @exception errno is set to EINVAL for invalid params, to ENOMEM for malloc failure.
 */
-size_t list_pop_fron_back(linked_list_t* list, char** key_ptr, void** data_ptr);
+size_t list_pop_from_back(linked_list_t* list, char** key_ptr, void** val_ptr);
 
 /**
  * @brief removes a node with matching key from the list.

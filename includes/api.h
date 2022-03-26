@@ -65,7 +65,7 @@ int readFile(const char* pathname, void** buf, size_t* size);
 /**
  * @brief reads N files and saves them to dirname.
  * @returns 0 on success, -1 on failure.
- * @param N if it is 0 or bigger than the number of files in the cache all files will be read.
+ * @param N if it is 0 or bigger than the number of files in the server, all files will be read.
  * @param dirname == NULL will not store read files inside the cache.
  * @exception errno is set to EINVAL for invalid params,to ENOTCONN if client is not connected to the socket, to
  * EBADMSG if the socket responds with an invalid message.

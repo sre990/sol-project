@@ -9,18 +9,19 @@
 #include <stdlib.h>
 
 #include <linked_list.h>
-#include <defines.h>
+#include "defines.h"
+
 
 typedef struct _cache cache_t;
 
 /**
  * @brief creates a cache of limited size with a certain policy.
  * @returns a cache on success, NULL on failure.
- * @param max_files_no must be != 0.
- * @param max_cache_size must be != 0.
+ * @param files_max must be != 0.
+ * @param size_max must be != 0.
  * @exception errno is set to EINVAL for invalid params.
 */
-cache_t* cache_create(size_t max_files_no, size_t max_cache_size, policy_t pol);
+cache_t* cache_create(size_t files_max, size_t size_max, policy_t pol);
 
 /**
  * @brief opening of a file by a client with flags.
@@ -121,15 +122,15 @@ int cache_closeFile(cache_t* cache, const char* pathname, int client);
 int cache_removeFile(cache_t* cache, const char* pathname, int client);
 
 /**
- * @brief Gets maximum amount of files stored.
+ * @brief gets the max number of files inside the server.
  * @param cache must be != NULL.
- * @returns max number of files reached by the cache on success, 0 on failure.
+ * @returns max number of files reached by the server on success, 0 on failure.
  * @exception errno is set to EINVAL for invalid params.
 */
 size_t cache_get_files_max(cache_t* cache);
 
 /**
- * @brief Gets maximum total size.
+ * @brief gets the max size of files inside the server.
  * @param cache must be != NULL.
  * @returns max size reached by the cache on success, 0 on failure.
  * @exception errno is set to EINVAL for invalid params.
@@ -137,7 +138,7 @@ size_t cache_get_files_max(cache_t* cache);
 size_t cache_get_size_max(cache_t* cache);
 
 /**
- * @brief printing of a summary of informations about the file storage cache.
+ * @brief printing of a summary of informations about the cache.
  * @param cache
 */
 void cache_print(cache_t* cache);

@@ -22,7 +22,7 @@ typedef struct _hash_table hash_table_t;
  * @exception errno is set to ENOMEM if malloc fails.
 */
 hash_table_t* table_create(size_t buckets, size_t (*hash_fun) (const void*),
-                                int (*hash_cmp) (const void*, const void*), void (*free_data) (void*));
+                           int (*hash_cmp) (const void*, const void*), void (*free_data) (void*));
 
 /**
  * @brief inserts a key-value pair into the table

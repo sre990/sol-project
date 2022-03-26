@@ -28,7 +28,7 @@ bounded_buffer_t* buffer_create(size_t capacity);
 int buffer_enqueue(bounded_buffer_t* buffer, const char* data);
 
 /**
- * @brief dequeues first elemeent from buffer and saves it to data_ptr.
+ * @brief dequeues first element from buffer and saves it to data_ptr.
  * @returns 0 on success, -1 on failure.
  * @param buffer must be != NULL.
  * @param data_ptr must be != NULL.

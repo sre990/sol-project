@@ -1,5 +1,5 @@
 /**
- * @brief header file for read-write lock.
+ * @brief header file for read-write lock to be used in the file storage cache.
  *
 */
 
@@ -11,7 +11,7 @@ typedef struct _rw_lock rw_lock_t;
 /**
  * @brief creates a read-write lock.
  * @returns read-write lock on success, NULL on failure.
- * @exception errno is set to ERRNOMEN for malloc failure.
+ * @exception errno is set to ERRNOMEM for malloc failure.
 */
 rw_lock_t* lock_create();
 
