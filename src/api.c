@@ -34,7 +34,7 @@ int openConnection(const char* sockname, int msec, const struct timespec abstime
 	int err;
 	char err_str[REQ_LEN_MAX];
    strcpy(socket_path, sockname);
-
+   //checking if a connection exists already
 	if (fd_socket != -1){
 		err = EISCONN;
 		fail_with(OPEN_CONN,default_flags,default_N,socket_path,err_str,err);
@@ -44,7 +44,7 @@ int openConnection(const char* sockname, int msec, const struct timespec abstime
 		err = EINVAL;
       fail_with(OPEN_CONN,default_flags,default_N,socket_path,err_str,err);
 	}
-
+   //connectiong to an AF_UNIX stream socket
 	fd_socket = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (fd_socket == -1){
 		err = errno;
@@ -56,7 +56,7 @@ int openConnection(const char* sockname, int msec, const struct timespec abstime
 	sock_addr.sun_family = AF_UNIX;
 
 	errno = 0;
-   //try to connect every msec milliseconds and stop after abstime
+   //try to connect every msec milliseconds and stop after abstime has elapsed
 	while (connect(fd_socket, (struct sockaddr*) &sock_addr, sizeof(sock_addr)) == -1){
 		if (errno != ENOENT){
 			err = errno;
@@ -85,6 +85,7 @@ int closeConnection(const char* sockname){
 		err = EINVAL;
       fail_with(CLOSE_CONN,default_flags,default_N,socket_path,err_str,err);
    }
+   //checking if a connection exists already
 	if (strcmp(sockname, socket_path) != 0){
 		err = ENOTCONN;
       fail_with(CLOSE_CONN,default_flags,default_N,socket_path,err_str,err);
@@ -102,7 +103,7 @@ int closeConnection(const char* sockname){
 		err = errno;
       fail_with(CLOSE_CONN,default_flags,default_N,socket_path,err_str,err);
 	}
-
+   //closes the socket without waiting for a response from server
 	if (close(fd_socket) == -1){
 		err = errno;
 		fd_socket = -1;
@@ -125,6 +126,7 @@ int openFile(const char* pathname, int flags){
       fail_with(OPEN_FILE,flags,default_N,file_path,err_str,err);
 
    }
+   //checking if a connection exists already
 	if (fd_socket == -1){
 		err = ENOTCONN;
       fail_with(OPEN_FILE,flags,default_N,file_path,err_str,err);
@@ -152,7 +154,6 @@ int openFile(const char* pathname, int flags){
 		err = errno;
       fail_with(OPEN_FILE,flags,default_N,file_path,err_str,err);
 	}
-
 	int feedback;
 	if (sscanf(feedback_str, "%d", &feedback) != 1){
 		err = EBADMSG;
@@ -190,7 +191,6 @@ int openFile(const char* pathname, int flags){
       default:
          break;
 	}
-
 	return succeed_with(OPEN_FILE,flags,default_N,file_path);
 }
 
@@ -203,6 +203,7 @@ int readFile(const char* pathname, void** buf, size_t* size){
 		err = EINVAL;
       fail_with(READ_FILE,default_flags,default_N,file_path,err_str,err);
 	}
+   //checking if a connection exists already
 	if (fd_socket == -1){
 		err = ENOTCONN;
       fail_with(READ_FILE,default_flags,default_N,file_path,err_str,err);
@@ -285,7 +286,7 @@ int readFile(const char* pathname, void** buf, size_t* size){
       fail_with(READ_FILE,default_flags,default_N,file_path,err_str,err);
 	}
 	if (read_size !=  0){
-		read_buffer = (char*) malloc(sizeof(char) * (read_size + 1));
+		read_buffer = malloc(sizeof(char) * (read_size + 1));
 		if (!read_buffer){
 			err = errno;
          abort_with(READ_FILE,default_flags,default_N,file_path,err_str,err);
@@ -415,7 +416,7 @@ int readNFiles(int N, const char* dirname){
       //read the actual content
       char* contents = NULL;
       if (content_size != 0){
-         contents = (char*) malloc(content_size + 1);
+         contents = malloc(content_size + 1);
          if (!contents){
             err = errno;
             fail_with(READ_N_FILES,default_flags,N,dir_path,err_str,err);
@@ -533,7 +534,7 @@ int writeFile(const char* pathname, const char* dirname){
    }
 	// reading file contents
 	if (length != 0){
-		contents = (char*) malloc(sizeof(char) * (length + 1));
+		contents = malloc(sizeof(char) * (length + 1));
 		if (!contents){
 			err = errno;
 			fclose(file);
@@ -711,7 +712,7 @@ int writeFile(const char* pathname, const char* dirname){
       // getting file contents
       char* contents = NULL;
       if (content_size != 0){
-         contents = (char*) malloc(content_size + 1);
+         contents = malloc(content_size + 1);
          if (!contents){
             err = errno;
             if(dirname){
@@ -959,7 +960,7 @@ int appendToFile(const char* pathname, void* buf, size_t size, const char* dirna
       //getting file contents
       char* contents = NULL;
       if (content_size != 0){
-         contents = (char*) malloc(content_size + 1);
+         contents = malloc(content_size + 1);
          if (!contents){
             err = errno;
             goto fatal;
