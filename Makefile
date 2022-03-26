@@ -14,8 +14,12 @@ TARGETS = server client
 
 .DEFAULT_GOAL := all
 
-OBJS-SERVER = obj/linked_list.o obj/hash_table.o obj/rw_lock.o obj/parser.o obj/cache.o obj/bounded_buffer.o obj/server.o
+OBJS-SERVER = obj/worker.o obj/linked_list.o obj/hash_table.o obj/rw_lock.o obj/parser.o obj/cache.o obj/bounded_buffer.o obj/server.o
 OBJS-CLIENT = obj/linked_list.o obj/api.o obj/client.o
+
+obj/worker.o:
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/worker.c $(LIBS)
+	@mv worker.o $(OBJ_DIR)/worker.o
 
 obj/linked_list.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c utils/linked_list.c $(LIBS)
@@ -79,28 +83,28 @@ stats1:
 	@chmod +x ./stats.sh
 	@echo "\n--------------------FIFO STATS--------------------"
 	./stats.sh logs/FIFO1.log
-	@echo "\n--------------------LFU STATS--------------------"
-	./stats.sh logs/LFU1.log
 	@echo "\n--------------------LRU STATS--------------------"
 	./stats.sh logs/LRU1.log
+	@echo "\n--------------------LFU STATS--------------------"
+	./stats.sh logs/LFU1.log
 
 stats2:
 	@chmod +x ./stats.sh
 	@echo "\n--------------------FIFO STATS--------------------"
 	./stats.sh logs/FIFO2.log
-	@echo "\n--------------------LFU STATS--------------------"
-	./stats.sh logs/LFU2.log
 	@echo "\n--------------------LRU STATS--------------------"
 	./stats.sh logs/LRU2.log
+	@echo "\n--------------------LFU STATS--------------------"
+	./stats.sh logs/LFU2.log
 
 stats3:
 	@chmod +x ./stats.sh
 	@echo "\n--------------------FIFO STATS--------------------"
 	./stats.sh logs/FIFO3.log
-	@echo "\n--------------------LFU STATS--------------------"
-	./stats.sh logs/LFU3.log
 	@echo "\n--------------------LRU STATS--------------------"
 	./stats.sh logs/LRU3.log
+	@echo "\n--------------------LFU STATS--------------------"
+	./stats.sh logs/LFU3.log
 
 .PHONY: clean cleanall all stubs
 all: $(TARGETS)
