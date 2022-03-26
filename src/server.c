@@ -64,6 +64,9 @@ int main(int argc, char* argv[]){
    pthread_t* workers = NULL; // worker threads pool
    worker_t* worker = NULL;
    unsigned long pool_size; //worker pool
+   //specifies the interval in microseconds that select() should block waiting for a fd to become ready
+   struct timeval timeout_master = { 0, 100000 };
+   struct timeval timeout_cpy;
    char* log_name = NULL;
    FILE* log_file = NULL;
    size_t online = 0; // clients online now
@@ -198,8 +201,9 @@ int main(int argc, char* argv[]){
 
       // reinitialise the read set
       read_cpy = master_read;
+      timeout_cpy = timeout_master;
       // wait for a fd to be ready for read operation
-      if ((select(fd_num + 1, &read_cpy, NULL, NULL, NULL)) == -1){
+      if ((select(fd_num + 1, &read_cpy, NULL, NULL, &timeout_cpy)) == -1){
          if (errno == EINTR){
             //soft exit
             if (online == 0 && refuse_new) break;
