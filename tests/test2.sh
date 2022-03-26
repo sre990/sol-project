@@ -53,7 +53,7 @@ SERVER_PID=$!
 export SERVER_PID
 sleep 5s
 
-echo -e "${BLUE}FIFO> Setting up clients${RESET}"
+echo -e "${BLUE}FIFO> Setting up clients...${RESET}"
 # connect, send files, save victims if any
 build/client -p -t 10 -f LSOfiletorage.sk -w stubs1 -D test2/FIFO/victims1
 # connect, send files, save victims if any
@@ -81,7 +81,7 @@ export SERVER_PID
 
 sleep 5s
 
-echo -e "${YELLOW}LRU> Setting up clients${RESET}"
+echo -e "${YELLOW}LRU> Setting up clients...${RESET}"
 # connect, send files, save victims if any
 build/client -p -t 10 -f LSOfiletorage.sk -w stubs1 -D test2/LRU/victims1
 # connect, send files, save victims if any
@@ -109,7 +109,7 @@ export SERVER_PID
 
 sleep 5s
 
-echo -e "${GREEN}LFU> Running some clients${RESET}"
+echo -e "${GREEN}LFU> Setting up clients...${RESET}"
 # connect, send files, save victims if any
 build/client -p -t 10 -f LSOfiletorage.sk -w stubs1 -D test2/LFU/victims1
 # connect, send files, save victims if any
