@@ -99,12 +99,12 @@ echo -e "removeFile operations: ${REMOVEFILE}."
 echo -e "-${BOLD}CACHING${RESET}-"
 # log files have the number of victims inside square brackets
 VICTIMS=$(grep -E "Victims : [1-9+]" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g' | wc -l)
-MAXSIZE_BYTES=$(grep "Maximum size" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g')
+MAXSIZE_BYTES=$(grep "Max size" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g')
 MAXSIZE_MBYTES=$(echo "${MAXSIZE_BYTES} * 0.000001" | bc -l)
-MAXFILES=$(grep "Maximum file" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g')
+MAXFILES=$(grep "Max number" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g')
 echo -e "Replacement algorithm was executed: ${VICTIMS} time(s)."
-echo -e "Maximum size reached by cache: ${MAXSIZE_MBYTES}MBytes."
-echo -e "Maximum files reached by cache: ${MAXFILES}."
+echo -e "Max size reached by the file storage cache: ${MAXSIZE_MBYTES}MBytes."
+echo -e "Max number of files stored inside the server: ${MAXFILES}."
 
 echo -e "-${BOLD}REQUESTS HANDLED PER WORKER${RESET}-"
 # log files have worker ids in curly brackets, counting requests per worker
@@ -115,5 +115,5 @@ while IFS= read -r line; do
 done <<< "$REQUESTS"
 
 echo -e "-${BOLD}ONLINE CLIENTS${RESET}-"
-MAXCLIENTS=$(grep "Current online clients : " $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g' | sort -g -r | head -1)
+MAXCLIENTS=$(grep "Clients online now : " $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g' | sort -g -r | head -1)
 echo -e "Maximum number of online clients: ${MAXCLIENTS}."

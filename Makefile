@@ -5,17 +5,18 @@ LIBS = -lpthread
 
 BUILD_DIR := ./build
 OBJ_DIR := ./obj
+LIB_DIR := ./libs
 SRC_DIR := ./src
 TEST_DIR := ./tests
 HEADERS_DIR = ./includes/
-DUMMIES_DIR = ./stubs
+STUBS_DIR = ./stubs
 
 TARGETS = server client
 
 .DEFAULT_GOAL := all
 
-OBJS-SERVER = obj/worker.o obj/linked_list.o obj/hash_table.o obj/rw_lock.o obj/parser.o obj/cache.o obj/bounded_buffer.o obj/server.o
-OBJS-CLIENT = obj/linked_list.o obj/api.o obj/client.o
+OBJS_SERVER = obj/worker.o obj/linked_list.o obj/hash_table.o obj/rw_lock.o obj/parser.o obj/cache.o obj/bounded_buffer.o obj/server.o
+OBJS_CLIENT = obj/linked_list.o obj/api.o obj/client.o
 
 obj/worker.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c src/worker.c $(LIBS)
@@ -57,24 +58,27 @@ obj/client.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c src/client.c $(LIBS)
 	@mv client.o $(OBJ_DIR)/client.o
 
-client: $(OBJS-CLIENT)
-	$(CC) $(CFLAGS) -o $(BUILD_DIR)/client $(OBJS-CLIENT) $(LIBS)
 
-server: $(OBJS-SERVER)
-	$(CC) $(CFLAGS) -o $(BUILD_DIR)/server $(OBJS-SERVER) $(LIBS)
+
+client: $(OBJS_CLIENT)
+	$(CC) $(CFLAGS) -o $(BUILD_DIR)/client $(OBJS_CLIENT) $(LIBS)
+
+server: $(OBJS_SERVER)
+	$(CC) $(CFLAGS) -o $(BUILD_DIR)/server $(OBJS_SERVER) $(LIBS)
+
 
 test1: client server
-	@echo "NUMBER OF WORKER THREADS = 1\nMAX NUMBER OF FILES ACCEPTED = 10000\nMAX CACHE SIZE = 128000000\nSOCKET FILE PATH = $(PWD)/LSOfiletorage.sk\nLOG FILE PATH = $(PWD)/logs/FIFO1.log\nREPLACEMENT POLICY = 0" > config1.txt
+	@echo "NUMBER OF WORKER THREADS = 1\nMAX NUMBER OF FILES ACCEPTED = 10000\nMAX CACHE SIZE = 128000000\nSOCKET FILE PATH = $(PWD)/LSOFileStorage.sk\nLOG FILE PATH = $(PWD)/logs/FIFO1.log\nREPLACEMENT POLICY = 0" > config1.txt
 	@chmod +x tests/test1.sh
 	tests/test1.sh
 
 test2: client server
-	@echo "NUMBER OF WORKER THREADS = 4\nMAX NUMBER OF FILES ACCEPTED = 10\nMAX CACHE SIZE = 1000000\nSOCKET FILE PATH = $(PWD)/LSOfiletorage.sk\nLOG FILE PATH = $(PWD)/logs/FIFO2.log\nREPLACEMENT POLICY = 0" > config2.txt
+	@echo "NUMBER OF WORKER THREADS = 4\nMAX NUMBER OF FILES ACCEPTED = 10\nMAX CACHE SIZE = 1000000\nSOCKET FILE PATH = $(PWD)/LSOFileStorage.sk\nLOG FILE PATH = $(PWD)/logs/FIFO2.log\nREPLACEMENT POLICY = 0" > config2.txt
 	@chmod +x tests/test2.sh
 	tests/test2.sh
 
 test3: client server
-	@echo "NUMBER OF WORKER THREADS = 8\nMAX NUMBER OF FILES ACCEPTED = 100\nMAX CACHE SIZE = 32000000\nSOCKET FILE PATH = $(PWD)/LSOfiletorage.sk\nLOG FILE PATH = $(PWD)/logs/FIFO3.log\nREPLACEMENT POLICY = 0" > config3.txt
+	@echo "NUMBER OF WORKER THREADS = 8\nMAX NUMBER OF FILES ACCEPTED = 100\nMAX CACHE SIZE = 32000000\nSOCKET FILE PATH = $(PWD)/LSOFileStorage.sk\nLOG FILE PATH = $(PWD)/logs/FIFO3.log\nREPLACEMENT POLICY = 0" > config3.txt
 	@chmod +x tests/test3.sh
 	@chmod +x tests/test3_stress.sh
 	tests/test3.sh
@@ -109,6 +113,6 @@ stats3:
 .PHONY: clean cleanall all stubs
 all: $(TARGETS)
 clean cleanall:
-	rm -rf $(BUILD_DIR)/* $(OBJ_DIR)/* logs/*.log *.sk test1 test2 test3 stubs* *.txt
+	rm -rf $(BUILD_DIR)/* $(OBJ_DIR)/* $(LIB_DIR)/* logs/*.log *.sk test1 test2 test3 stubs* *.txt
 	@touch $(BUILD_DIR)/.keep
 	@touch $(OBJ_DIR)/.keep
