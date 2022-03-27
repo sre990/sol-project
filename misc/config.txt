@@ -1,5 +1,0 @@
-workers_num = 8
-files_num = 100
-capacity = 32000000
-socket = LSOfilestorage.sk
-log = logs/log.txt
