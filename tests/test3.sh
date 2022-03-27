@@ -63,28 +63,28 @@ sleep 5s
 bash -c 'sleep 30 && kill -2 ${SERVER_PID}' &
 echo -e "${BLUE}FIFO> Shutting down the server with SIGINT in 30s...${RESET}"
 
-# start 10 times aux script
-aux_pids=()
+# run the stress test 10 times
+pids=()
 for i in {1..10}; do
 	bash -c 'tests/test3_stress.sh' &
-	aux_pids+=($!)
+	pids+=($!)
 	sleep 0.1
 done
 
 sleep 30s
 
-# kill spawned instances
-for i in "${aux_pids[@]}"; do
+# terminate all processes
+for i in "${pids[@]}"; do
 	kill ${i}
 	wait ${i} 2>/dev/null
 done
 
 wait $SERVER_PID
-killall -q build/client # kill every running client
+killall -q build/client # terminate all clients
 echo -e "${BLUE}FIFO> Finished.
 ${RESET}"
 
-# replace 0 with 1 in config3.txt => use LRU replacement policy
+# replace 0 with 1 in config3.txt and FIFO with LRU
 sed -i '$s/0/1/' config3.txt
 # change log file name
 sed -i -e 's/FIFO3.log/LRU3.log/g' config3.txt
@@ -99,28 +99,28 @@ sleep 5s
 bash -c 'sleep 30 && kill -2 ${SERVER_PID}' &
 echo -e "${YELLOW}LRU> Shutting down the server with SIGINT in 30s...${RESET}"
 
-# start 10 times aux script
-aux_pids=()
+# run the stress test 10 times
+pids=()
 for i in {1..10}; do
 	bash -c 'tests/test3_stress.sh' &
-	aux_pids+=($!)
+	pids+=($!)
 	sleep 0.1
 done
 
 sleep 30s
 
-# kill spawned instances
-for i in "${aux_pids[@]}"; do
+# terminate all processes
+for i in "${pids[@]}"; do
 	kill ${i}
 	wait ${i} 2>/dev/null
 done
 
 wait $SERVER_PID
-killall -q build/client # kill every running client
+killall -q build/client # terminate all clients
 echo -e "${YELLOW}LRU> Finished.
 ${RESET}"
 
-# replace 1 with 2 in config3.txt => use LFU replacement policy
+# replace 1 with 2 in config3.txt and LRU with LFU 
 sed -i '$s/1/2/' config3.txt
 # change log file name
 sed -i -e 's/LRU3.log/LFU3.log/g' config3.txt
@@ -136,24 +136,24 @@ sleep 5s
 bash -c 'sleep 30 && kill -2 ${SERVER_PID}' &
 echo -e "${GREEN}LFU> Shutting down the server with SIGINT in 30s...${RESET}"
 
-# start 10 times aux script
-aux_pids=()
+# run the stress test 10 times
+pids=()
 for i in {1..10}; do
 	bash -c 'tests/test3_stress.sh' &
-	aux_pids+=($!)
+	pids+=($!)
 	sleep 0.1
 done
 
 sleep 30s
 
-# kill spawned instances
-for i in "${aux_pids[@]}"; do
+# terminate all processes
+for i in "${pids[@]}"; do
 	kill ${i}
 	wait ${i} 2>/dev/null
 done
 
 wait $SERVER_PID
-killall -q build/client # kill every running client
+killall -q build/client # terminate all clients
 echo -e "${GREEN}LFU> Finished.
 ${RESET}"
 

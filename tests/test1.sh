@@ -44,31 +44,31 @@ head -c 90MB /dev/urandom | tr -dc 'a-zA-Z0-9~!@#$%^&*_-' | fold > stubs/stub10.
 echo -ne '[####################]     (100%)\r'
 echo -ne '\n'
 
-# booting the server
+# starting the server
 echo -e "${BLUE}FIFO> Starting up the server...${RESET}"
 valgrind --leak-check=full build/server ./config1.txt &
 # server pid
 SERVER_PID=$!
 export SERVER_PID
 
-sleep 5s
+sleep 3s
 
-server_file="$(pwd)/src/server.c"
-parser_file="$(pwd)/src/parser.c"
+file1="$(pwd)/src/server.c"
+file2="$(pwd)/src/parser.c"
+file3="$(pwd)/src/worker.c"
 
 echo -e "${BLUE}FIFO> Setting up clients${RESET}"
-# print help message
+# print the help message
 build/client -h
-# connect
-build/client -p -t 200 -f LSOfiletorage.sk
-# send directory, store victims if any
-build/client -p -t 200 -f LSOfiletorage.sk -w stubs -D test1/FIFO/evicted
-# send directory, store victims if any
-build/client -p -t 200 -f LSOfiletorage.sk -w src -D test1/FIFO/evicted
-# read every file inside server, send to directory, unlock a file
-build/client -p -t 200 -f LSOfiletorage.sk -R 0 -d test1/FIFO/read -u ${parser_file}
-# write a file inside cache, lock it, delete a file
-build/client -p -t 200 -f LSOfiletorage.sk -W ${server_file} -l ${server_file} -r ${parser_file},${server_file} -c ${server_file}
+# connect to the socket
+build/client -p -t 200 -f LSOFileStorage.sk
+# write files from one directory and store evicted files in another
+build/client -p -t 200 -f LSOFileStorage.sk -w stubs -D test1/FIFO/evicted
+build/client -p -t 200 -f LSOFileStorage.sk -w src -D test1/FIFO/evicted
+# read files from the server, save them and unlock a file
+build/client -p -t 200 -f LSOFileStorage.sk -R 0 -d test1/FIFO/read -u ${file2}
+# write file to server, lock it, read two files, remove one file
+build/client -p -t 200 -f LSOFileStorage.sk -W ${file1} -l ${file1} -r ${file2},${file3} -c ${file1}
 
 echo -e "${BLUE}FIFO> Shutting down the server with SIGHUP...${RESET}"
 kill -s SIGHUP $SERVER_PID
@@ -76,9 +76,8 @@ wait $SERVER_PID
 echo -e "${BLUE}FIFO> Finished.
 ${RESET}"
 
-# replace 0 with 1 in config1.txt => use LRU replacement policy
+# replace 0 with 1 in config1.txt and FIFO with LRU
 sed -i '$s/0/1/' config1.txt
-# change log file name
 sed -i -e 's/FIFO1.log/LRU1.log/g' config1.txt
 
 echo -e "${YELLOW}LRU> Starting up the server...${RESET}"
@@ -88,21 +87,20 @@ valgrind --leak-check=full build/server ./config1.txt &
 SERVER_PID=$!
 export SERVER_PID
 
-sleep 5s
+sleep 3s
 
 echo -e "${YELLOW}LRU> Setting up clients${RESET}"
-# print help message
+# print the help message
 build/client -h
-# connect
-build/client -p -t 200 -f LSOfiletorage.sk
-# send directory, store victims if any
-build/client -p -t 200 -f LSOfiletorage.sk -w stubs -D test1/LRU/evicted
-# send directory, store victims if any
-build/client -p -t 200 -f LSOfiletorage.sk -w src -D test1/LRU/evicted
-# read every file inside server, send to directory, unlock a file
-build/client -p -t 200 -f LSOfiletorage.sk -R 0 -d test1/LRU/read -u ${parser_file}
-# write a file inside cache, lock it, delete a file
-build/client -p -t 200 -f LSOfiletorage.sk -W ${server_file} -l ${server_file} -r ${parser_file},${server_file} -c ${server_file}
+# connect to the socket
+build/client -p -t 200 -f LSOFileStorage.sk
+# write files from one directory and store evicted files in another
+build/client -p -t 200 -f LSOFileStorage.sk -w stubs -D test1/LRU/evicted
+build/client -p -t 200 -f LSOFileStorage.sk -w src -D test1/LRU/evicted
+# read files from the server, save them and unlock a file
+build/client -p -t 200 -f LSOFileStorage.sk -R 0 -d test1/LRU/read -u ${file2}
+# write file to server, lock it, read two files, remove one file
+build/client -p -t 200 -f LSOFileStorage.sk -W ${file1} -l ${file1} -r ${file2},${file3} -c ${file1}
 
 echo -e "${YELLOW}LRU> Shutting down the server with SIGHUP...${RESET}"
 kill -s SIGHUP $SERVER_PID
@@ -110,9 +108,8 @@ wait $SERVER_PID
 echo -e "${YELLOW}LRU> Finished.
 ${RESET}"
 
-# replace 1 with 2 in config1.txt => use LFU replacement policy
+# replace 1 with 2 in config1.txt and LRU with LFU
 sed -i '$s/1/2/' config1.txt
-# change log file name
 sed -i -e 's/LRU1.log/LFU1.log/g' config1.txt
 
 echo -e "${GREEN}LFU> Starting up the server...${RESET}"
@@ -122,21 +119,20 @@ valgrind --leak-check=full build/server ./config1.txt &
 SERVER_PID=$!
 export SERVER_PID
 
-sleep 5s
+sleep 3s
 
 echo -e "${GREEN}LFU> Setting up clients${RESET}"
-# print help message
+# print the help message
 build/client -h
-# connect
-build/client -p -t 200 -f LSOfiletorage.sk
-# send directory, store victims if any
-build/client -p -t 200 -f LSOfiletorage.sk -w stubs -D test1/LFU/evicted
-# send directory, store victims if any
-build/client -p -t 200 -f LSOfiletorage.sk -w src -D test1/LFU/evicted
-# read every file inside server, send to directory, unlock a file
-build/client -p -t 200 -f LSOfiletorage.sk -R 0 -d test1/LFU/read -u ${parser_file}
-# write a file inside cache, lock it, delete a file
-build/client -p -t 200 -f LSOfiletorage.sk -W ${server_file} -l ${server_file} -r ${parser_file},${server_file} -c ${server_file}
+# connect to the socket
+build/client -p -t 200 -f LSOFileStorage.sk
+# write files from one directory and store evicted files in another
+build/client -p -t 200 -f LSOFileStorage.sk -w stubs -D test1/LFU/evicted
+build/client -p -t 200 -f LSOFileStorage.sk -w src -D test1/LFU/evicted
+# read files from the server, save them and unlock a file
+build/client -p -t 200 -f LSOFileStorage.sk -R 0 -d test1/LFU/read -u ${file2}
+# write file to server, lock it, read two files, remove one file
+build/client -p -t 200 -f LSOFileStorage.sk -W ${file1},${file2} -l ${file1} -r ${file1},${file2},${file3} -c ${file1}
 
 echo -e "${GREEN}LFU> Shutting down the server with SIGHUP...${RESET}"
 kill -s SIGHUP $SERVER_PID
