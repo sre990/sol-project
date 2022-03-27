@@ -32,7 +32,7 @@ volatile sig_atomic_t refuse_new = 0; // toggled on when server must not accept 
  * @brief used to handle signals.
  * @param arg to be cast to sigset_t
 */
-static void* handle_signal(void* arg);
+static void* handle_signal(void* sigs);
 
 int main(int argc, char* argv[]){
    if (argc != 2){
@@ -243,7 +243,7 @@ int main(int argc, char* argv[]){
                   LOG_EVENT("New client accepted : %d.\n", fd_client);
                   FD_SET(fd_client, &master_read);
                   online++;
-                  LOG_EVENT("Current online clients : %lu.\n", online);
+                  LOG_EVENT("Clients online now : %lu.\n", online);
                   fd_num = MAX(fd_client, fd_num);
                }
             //new task from a client already part of the set
@@ -273,8 +273,8 @@ int main(int argc, char* argv[]){
    //wait until the thread handling the signals dies
    pthread_join(signal_handler_id, NULL);
    //write results to log file
-   LOG_EVENT("Maximum size reached : %3f.\n", cache_get_size_max(cache) * MBYTE);
-   LOG_EVENT("Maximum file number : %lu.\n", cache_get_files_max(cache));
+   LOG_EVENT("Max size reached by the file storage cache : %3f.\n", cache_get_size_max(cache) * MBYTE);
+   LOG_EVENT("Max number of files stored inside the server : %lu.\n", cache_get_files_max(cache));
    //print the contents of the cache
    cache_print(cache);
    //free allocated resources and close
@@ -322,20 +322,21 @@ int main(int argc, char* argv[]){
 }
 
 
-static void* handle_signal(void* arg){
+static void* handle_signal(void* sigs){
    //a set of signals to be blocked, unblocked, or waited for
-   sigset_t* set = (sigset_t*) arg;
+   sigset_t* set = (sigset_t*) sigs;
    int err;
    int signal;
    while (true){
       CHECK_NZ_EXIT(err, sigwait(set, &signal), sigwait);
       switch (signal){
-         // closing server immediately
+         // immediate shutdown
          case SIGINT:
          case SIGQUIT:
             terminate = 1;
             return NULL;
-         // blocking new connections
+         // blocking new connections and shutting down after all clients
+         //ha closed the connection
          case SIGHUP:
             refuse_new = 1;
             return NULL;

@@ -501,8 +501,7 @@ void* do_job(void* wkr){
             if (err==OP_FAILURE) {
                memset(req, 0, REQ_LEN_MAX);
                snprintf(req, REQ_LEN_MAX, "%d", errno_cpy);
-               CHECK_FAIL_EXIT(err, writen((long) fd_ready, (void *) req,
-                                           ERRNO_LEN_MAX), writen);
+               CHECK_FAIL_EXIT(err, writen((long) fd_ready, (void *) req,ERRNO_LEN_MAX), writen);
             }else if(err==OP_EXIT_FATAL){
                memset(req, 0, REQ_LEN_MAX);
                snprintf(req, REQ_LEN_MAX, "%d", errno_cpy);
