@@ -28,7 +28,7 @@
 #define EXIT_FATAL "EXIT_FATAL"
 
 //setting mask with flag and resetting it
-#define SET_FLAG(mask, flag) mask |= flag
+#define SET_MASK(mask, flag) mask |= flag
 #define RESET_MASK(mask) mask = 0
 
 #define O_CREATE 1
@@ -66,7 +66,7 @@
 #define TASK_LEN_MAX 32
 //client defines
 #define CMD_LEN_MAX 2
-#define MAX_NAME 128
+#define NAME_LEN_MAX 128
 #define ARG_LEN_MAX 2048
 //checking command line options permitted by client
 #define CHECK_OPT(character) \
@@ -83,15 +83,15 @@
 "-f <filename> : connects to given socket.\n"\
 "-w <dirname>[,n=0] : sends to server up to n files in given directory and its subdirectories.\n"\
 "-W <file1>[,file2] : sends to server given files.\n"\
-"-D <dirname> : specifies the folder evicted files are to be sent to.\n"\
+"-D <dirname> : specifies the folder where evicted files are to be sent to.\n"\
 "-r <file1>[,file2] : reads given files from server.\n"\
 "-R [n=0] : reads at least n files from server (if unspecified, it reads every file).\n"\
-"-d <dirname> : specifies the folder read files are to be stored in.\n"\
+"-d <dirname> : specifies the folder where read files are to be stored in.\n"\
 "-t <time> : specifies time to wait between requests.\n"\
 "-l <file1>[,file2] : requests lock over given files.\n"\
 "-u <file1>[,file2] : releases lock over given files.\n"\
 "-c <file1>[,file2] : requests server to remove given files.\n"\
-"-p : enables output on stdout.\n"
+"-p : enables output to stdout.\n"
 
 //used for logging purposes
 #define LOG_EVENT(...) \
