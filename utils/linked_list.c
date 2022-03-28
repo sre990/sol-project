@@ -196,10 +196,10 @@ int list_push_to_front(linked_list_t* list, const char* key,
 		return -1;
 	}
 	node_t* new;
-	if ((new = node_create(key, key_size, val, val_size, list->free_data)) == NULL)
+	if (!(new = node_create(key, key_size, val, val_size, list->free_data)))
 		return -1;
 
-	if (list->first == NULL){
+	if (!list->first){
       //first element of the list
 		list->first = new;
 		list->last = new;
@@ -221,10 +221,10 @@ int list_push_to_back(linked_list_t* list, const char* key,
 	}
 
 	node_t* new;
-	if ((new = node_create(key, key_size, val, val_size, list->free_data)) == NULL)
+	if (!(new = node_create(key, key_size, val, val_size, list->free_data)))
 		return -1;
 
-	if (list->first == NULL) {
+	if (!(list->first)) {
       //first element of the list
 		list->first = new;
 		list->last = new;
@@ -373,7 +373,7 @@ linked_list_t* list_save_keys(const linked_list_t* list){
 
 void list_print(const linked_list_t* list){
 	if (!list) return;
-	fprintf(stdout, "Number of elements after server shutdown: %lu\n", list->tasks);
+	fprintf(stdout, "Number of files after server shutdown: %lu\n", list->tasks);
 	const node_t* curr = list->first;
 	char* key = NULL;
 	while (curr){

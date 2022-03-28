@@ -72,7 +72,7 @@ hash_table_t* table_create(size_t bucket_num, size_t (*hash_fun) (const void*),
 		int (*hash_cmp) (const void*, const void*), void (*free_data) (void*)){
 	//allocating space for the whole table and for the buckets
    hash_table_t* table =  malloc(sizeof(hash_table_t));
-	if (table == NULL){
+	if (!table){
 		errno = ENOMEM;
 		return NULL;
 	}
@@ -213,3 +213,4 @@ void table_free(hash_table_t* table){
 		free(table);
 	}
 }
+
