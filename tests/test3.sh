@@ -6,7 +6,7 @@ YELLOW="\e[93m"
 BOLD="\e[1m"
 RESET="\e[0m"
 
-# starting
+
 echo -e "${BOLD}\n--------------------STARTING TEST 3--------------------\n${RESET}"
 
 echo -e "Creating stub files, please wait..."
@@ -52,18 +52,18 @@ cp -r stubs1 stubs8
 cp -r stubs1 stubs9
 cp -r stubs1 stubs10
 
-# booting the server
+
 echo -e "${BLUE}FIFO> Starting up the server...${RESET}"
 build/server ./config3.txt &
 # server pid
-SERVER_PID=$!
-export SERVER_PID
-sleep 5s
+SERVER=$!
+export SERVER
+sleep 3s
 
-bash -c 'sleep 30 && kill -2 ${SERVER_PID}' &
+bash -c 'sleep 30 && kill -2 ${SERVER}' &
 echo -e "${BLUE}FIFO> Shutting down the server with SIGINT in 30s...${RESET}"
 
-# run the stress test 10 times
+# start 10 times stress test
 pids=()
 for i in {1..10}; do
 	bash -c 'tests/test3_stress.sh' &
@@ -71,20 +71,21 @@ for i in {1..10}; do
 	sleep 0.1
 done
 
+# sleep 30 seconds and kill all instances
 sleep 30s
 
-# terminate all processes
 for i in "${pids[@]}"; do
 	kill ${i}
 	wait ${i} 2>/dev/null
 done
 
-wait $SERVER_PID
-killall -q build/client # terminate all clients
+wait $SERVER
+# kill all clients quietly
+killall -q build/client
 echo -e "${BLUE}FIFO> Finished.
 ${RESET}"
 
-# replace 0 with 1 in config3.txt and FIFO with LRU
+# changing config file name, changing to LRU replacement policy
 sed -i '$s/0/1/' config3.txt
 # change log file name
 sed -i -e 's/FIFO3.log/LRU3.log/g' config3.txt
@@ -92,14 +93,14 @@ sed -i -e 's/FIFO3.log/LRU3.log/g' config3.txt
 echo -e "${YELLOW}LRU> Starting up the server...${RESET}"
 build/server ./config3.txt &
 # server pid
-SERVER_PID=$!
-export SERVER_PID
-sleep 5s
+SERVER=$!
+export SERVER
+sleep 3s
 
-bash -c 'sleep 30 && kill -2 ${SERVER_PID}' &
+bash -c 'sleep 30 && kill -2 ${SERVER}' &
 echo -e "${YELLOW}LRU> Shutting down the server with SIGINT in 30s...${RESET}"
 
-# run the stress test 10 times
+# start 10 times stress test
 pids=()
 for i in {1..10}; do
 	bash -c 'tests/test3_stress.sh' &
@@ -107,20 +108,21 @@ for i in {1..10}; do
 	sleep 0.1
 done
 
+# sleep 30 seconds and kill all instances
 sleep 30s
 
-# terminate all processes
 for i in "${pids[@]}"; do
 	kill ${i}
 	wait ${i} 2>/dev/null
 done
 
-wait $SERVER_PID
-killall -q build/client # terminate all clients
+wait $SERVER
+# kill all clients quietly
+killall -q build/client
 echo -e "${YELLOW}LRU> Finished.
 ${RESET}"
 
-# replace 1 with 2 in config3.txt and LRU with LFU 
+# changing config file name, changing to LFU replacement policy
 sed -i '$s/1/2/' config3.txt
 # change log file name
 sed -i -e 's/LRU3.log/LFU3.log/g' config3.txt
@@ -129,14 +131,14 @@ echo -e "${GREEN}LFU> Starting up the server...${RESET}"
 
 build/server ./config3.txt &
 # server pid
-SERVER_PID=$!
-export SERVER_PID
-sleep 5s
+SERVER=$!
+export SERVER
+sleep 3s
 
-bash -c 'sleep 30 && kill -2 ${SERVER_PID}' &
+bash -c 'sleep 30 && kill -2 ${SERVER}' &
 echo -e "${GREEN}LFU> Shutting down the server with SIGINT in 30s...${RESET}"
 
-# run the stress test 10 times
+# start 10 times stress test
 pids=()
 for i in {1..10}; do
 	bash -c 'tests/test3_stress.sh' &
@@ -144,16 +146,17 @@ for i in {1..10}; do
 	sleep 0.1
 done
 
+# sleep 30 seconds and kill all instances
 sleep 30s
 
-# terminate all processes
 for i in "${pids[@]}"; do
 	kill ${i}
 	wait ${i} 2>/dev/null
 done
 
-wait $SERVER_PID
-killall -q build/client # terminate all clients
+wait $SERVER
+# kill all clients quietly
+killall -q build/client
 echo -e "${GREEN}LFU> Finished.
 ${RESET}"
 

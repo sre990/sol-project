@@ -6,9 +6,9 @@ YELLOW="\e[93m"
 BOLD="\e[1m"
 RESET="\e[0m"
 
-# starting
+
 echo -e "${BOLD}\n--------------------STARTING TEST 1--------------------\n${RESET}"
-# creating stubs
+
 echo -e "Creating stub files, please wait..."
 mkdir stubs
 touch stubs/stub1.txt
@@ -44,12 +44,12 @@ head -c 90MB /dev/urandom | tr -dc 'a-zA-Z0-9~!@#$%^&*_-' | fold > stubs/stub10.
 echo -ne '[####################]     (100%)\r'
 echo -ne '\n'
 
-# starting the server
+# starting the server with valgrind
 echo -e "${BLUE}FIFO> Starting up the server...${RESET}"
 valgrind --leak-check=full build/server ./config1.txt &
 # server pid
-SERVER_PID=$!
-export SERVER_PID
+SERVER=$!
+export SERVER
 
 sleep 3s
 
@@ -65,14 +65,16 @@ build/client -p -t 200 -f LSOFileStorage.sk
 # write files from one directory and store evicted files in another
 build/client -p -t 200 -f LSOFileStorage.sk -w stubs -D test1/FIFO/evicted
 build/client -p -t 200 -f LSOFileStorage.sk -w src -D test1/FIFO/evicted
-# read files from the server, save them and unlock a file
-build/client -p -t 200 -f LSOFileStorage.sk -R 0 -d test1/FIFO/read -u ${file2}
+# read all files from the server, save them and unlock a file
+build/client -p -t 200 -f LSOFileStorage.sk -R 0 -d test1/FIFO/read1 -u ${file2}
+# read 3 files from server and save them
+build/client -p -t 200 -f LSOFileStorage.sk -R 3 -d test1/FIFO/read2
 # write file to server, lock it, read two files, remove one file
 build/client -p -t 200 -f LSOFileStorage.sk -W ${file1} -l ${file1} -r ${file2},${file3} -c ${file1}
 
 echo -e "${BLUE}FIFO> Shutting down the server with SIGHUP...${RESET}"
-kill -s SIGHUP $SERVER_PID
-wait $SERVER_PID
+kill -s SIGHUP $SERVER
+wait $SERVER
 echo -e "${BLUE}FIFO> Finished.
 ${RESET}"
 
@@ -84,8 +86,8 @@ echo -e "${YELLOW}LRU> Starting up the server...${RESET}"
 
 valgrind --leak-check=full build/server ./config1.txt &
 # server pid
-SERVER_PID=$!
-export SERVER_PID
+SERVER=$!
+export SERVER
 
 sleep 3s
 
@@ -97,14 +99,16 @@ build/client -p -t 200 -f LSOFileStorage.sk
 # write files from one directory and store evicted files in another
 build/client -p -t 200 -f LSOFileStorage.sk -w stubs -D test1/LRU/evicted
 build/client -p -t 200 -f LSOFileStorage.sk -w src -D test1/LRU/evicted
-# read files from the server, save them and unlock a file
-build/client -p -t 200 -f LSOFileStorage.sk -R 0 -d test1/LRU/read -u ${file2}
+# read all files from the server, save them and unlock a file
+build/client -p -t 200 -f LSOFileStorage.sk -R 0 -d test1/LRU/read1 -u ${file2}
+# read 3 files from server and save them
+build/client -p -t 200 -f LSOFileStorage.sk -R 3 -d test1/LRU/read2
 # write file to server, lock it, read two files, remove one file
 build/client -p -t 200 -f LSOFileStorage.sk -W ${file1} -l ${file1} -r ${file2},${file3} -c ${file1}
 
 echo -e "${YELLOW}LRU> Shutting down the server with SIGHUP...${RESET}"
-kill -s SIGHUP $SERVER_PID
-wait $SERVER_PID
+kill -s SIGHUP $SERVER
+wait $SERVER
 echo -e "${YELLOW}LRU> Finished.
 ${RESET}"
 
@@ -116,8 +120,8 @@ echo -e "${GREEN}LFU> Starting up the server...${RESET}"
 
 valgrind --leak-check=full build/server ./config1.txt &
 # server pid
-SERVER_PID=$!
-export SERVER_PID
+SERVER=$!
+export SERVER
 
 sleep 3s
 
@@ -129,17 +133,20 @@ build/client -p -t 200 -f LSOFileStorage.sk
 # write files from one directory and store evicted files in another
 build/client -p -t 200 -f LSOFileStorage.sk -w stubs -D test1/LFU/evicted
 build/client -p -t 200 -f LSOFileStorage.sk -w src -D test1/LFU/evicted
-# read files from the server, save them and unlock a file
-build/client -p -t 200 -f LSOFileStorage.sk -R 0 -d test1/LFU/read -u ${file2}
+# read all files from the server, save them and unlock a file
+build/client -p -t 200 -f LSOFileStorage.sk -R 0 -d test1/LFU/read1 -u ${file2}
+# read 3 files from server and save them
+build/client -p -t 200 -f LSOFileStorage.sk -R 3 -d test1/LFU/read2
 # write file to server, lock it, read two files, remove one file
 build/client -p -t 200 -f LSOFileStorage.sk -W ${file1},${file2} -l ${file1} -r ${file1},${file2},${file3} -c ${file1}
 
 echo -e "${GREEN}LFU> Shutting down the server with SIGHUP...${RESET}"
-kill -s SIGHUP $SERVER_PID
-wait $SERVER_PID
+kill -s SIGHUP $SERVER
+wait $SERVER
 echo -e "${GREEN}LFU> Finished.
 ${RESET}"
 echo -e "${BOLD}--------------------TEST 1 HAS FINISHED--------------------\n${RESET}"
 rm config1.txt
 rm -r stubs
 exit 0
+

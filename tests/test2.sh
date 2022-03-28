@@ -6,7 +6,7 @@ YELLOW="\e[93m"
 BOLD="\e[1m"
 RESET="\e[0m"
 
-# starting
+
 echo -e "${BOLD}\n--------------------STARTING TEST 2--------------------\n${RESET}"
 
 echo -e "Creating stub files, please wait..."
@@ -45,27 +45,29 @@ echo -ne '\n'
 cp -r stubs1 stubs2
 cp -r stubs2 stubs3
 
-# booting the server
+
 echo -e "${BLUE}FIFO> Starting up the server...${RESET}"
 build/server ./config2.txt &
 # server pid
-SERVER_PID=$!
-export SERVER_PID
+SERVER=$!
+export SERVER
 sleep 3s
 
 echo -e "${BLUE}FIFO> Setting up clients...${RESET}"
-# connect to socket, write to server and send victims to specified directory
+# connect, send files, save victims if any
 build/client -p -t 10 -f LSOFileStorage.sk -w stubs1 -D test2/FIFO/evicted1
+# connect, send files, save victims if any
 build/client -p -t 10 -f LSOFileStorage.sk -w stubs2 -D test2/FIFO/evicted2
+# connect, send files, save victims if any
 build/client -p -t 10 -f LSOFileStorage.sk -w stubs3 -D test2/FIFO/evicted3
 
 echo -e "${BLUE}FIFO> Shutting down the server with SIGHUP...${RESET}"
-kill -s SIGHUP $SERVER_PID
-wait $SERVER_PID
+kill -s SIGHUP $SERVER
+wait $SERVER
 echo -e "${BLUE}FIFO> Finished.
 ${RESET}"
 
-# replace 0 with 1 in config2.txt and FIFO with LRU
+# changing config file name, changing to LRU replacement policy
 sed -i '$s/0/1/' config2.txt
 # change log file name
 sed -i -e 's/FIFO2.log/LRU2.log/g' config2.txt
@@ -74,24 +76,26 @@ echo -e "${YELLOW}LRU> Starting up the server...${RESET}"
 
 build/server ./config2.txt &
 # server pid
-SERVER_PID=$!
-export SERVER_PID
+SERVER=$!
+export SERVER
 
 sleep 3s
 
 echo -e "${YELLOW}LRU> Setting up clients...${RESET}"
-# connect to socket, write to server and send victims to specified directory
+# connect, send files, save victims if any
 build/client -p -t 10 -f LSOFileStorage.sk -w stubs1 -D test2/LRU/evicted1
+# connect, send files, save victims if any
 build/client -p -t 10 -f LSOFileStorage.sk -w stubs2 -D test2/LRU/evicted2
+# connect, send files, save victims if any
 build/client -p -t 10 -f LSOFileStorage.sk -w stubs3 -D test2/LRU/evicted3
 
 echo -e "${YELLOW}LRU> Shutting down the server with SIGHUP...${RESET}"
-kill -s SIGHUP $SERVER_PID
-wait $SERVER_PID
+kill -s SIGHUP $SERVER
+wait $SERVER
 echo -e "${YELLOW}LRU> Finished.
 ${RESET}"
 
-# replace 1 with 2 in config2.txt and LRU with LFU
+# changing config file name, changing to LFU replacement policy
 sed -i '$s/1/2/' config2.txt
 # change log file name
 sed -i -e 's/LRU2.log/LFU2.log/g' config2.txt
@@ -100,20 +104,22 @@ echo -e "${GREEN}LFU> Starting up the server...${RESET}"
 
 build/server ./config2.txt &
 # server pid
-SERVER_PID=$!
-export SERVER_PID
+SERVER=$!
+export SERVER
 
 sleep 3s
 
 echo -e "${GREEN}LFU> Setting up clients...${RESET}"
-# connect to socket, write to server and send victims to specified directory
+# connect, send files, save victims if any
 build/client -p -t 10 -f LSOFileStorage.sk -w stubs1 -D test2/LFU/evicted1
+# connect, send files, save victims if any
 build/client -p -t 10 -f LSOFileStorage.sk -w stubs2 -D test2/LFU/evicted2
+# connect, send files, save victims if any
 build/client -p -t 10 -f LSOFileStorage.sk -w stubs3 -D test2/LFU/evicted3
 
 echo -e "${GREEN}LFU> Shutting down the server with SIGHUP...${RESET}"
-kill -s SIGHUP $SERVER_PID
-wait $SERVER_PID
+kill -s SIGHUP $SERVER
+wait $SERVER
 echo -e "${GREEN}LFU> Finished.
 ${RESET}"
 echo -e "${BOLD}--------------------TEST 2 HAS FINISHED--------------------\n${RESET}"
