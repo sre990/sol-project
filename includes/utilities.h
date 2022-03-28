@@ -1,5 +1,5 @@
 /**
- * @brief Header for utilities such as readn and writen.
+ * @brief utility functions and mutexes.
  *
 */
 
@@ -202,12 +202,12 @@ static inline int fail_with(const char* op_str, int flags, int N,
 /**
  * @brief utility for handling fatal errors within the api, it takes an operation that caused
  * a fatal error with its arguments and prints the outcome to stdout
- * @returns -1 if strict_mode is false
+ * @returns exit does not return
  * @param op_str is the name of the operation
  * @param flags if any
  * @param N number of files to be read, if applicable
  * @param path to file, if applicable
- * @note strict_mode toggled exits with errno
+ * @note  exits with errno
 */
 static inline int abort_with(const char* op_str, int flags, int N,
                              const char* path, char* err_str, int err) {
@@ -224,8 +224,7 @@ static inline int abort_with(const char* op_str, int flags, int N,
       PRINT_IF(verbose_mode, "%s-> %s %s with errno = %s.\n", EXIT_FATAL,op_str, path, err_str);
    }
    errno = err;
-   if (strict_mode) exit(errno);
-   else return -1;
+   exit(errno);
 }
 
 /**

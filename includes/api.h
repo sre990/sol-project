@@ -9,8 +9,6 @@
 
 // if set to true, it will print to stdout
 extern bool verbose_mode;
-// if set to true, it will exit on fatal errors
-extern bool strict_mode;
 
 /**
  * @brief connect a client to the socket given as param
@@ -19,7 +17,7 @@ extern bool strict_mode;
  * @param msec must be >= 0.
  * @exception errno is set to EINVAL for invalid params, to EISCONN if the client is already connected
  * to a socket, to EAGAIN if a connection has not been established before abstime.
- * @note strict_mode toggled will exit on fatal errors.
+ * @note  will exit on fatal errors.
  * verbose_mode toggled will print the operation details to stdout.
  */
 int openConnection(const char* sockname, int msec, const struct timespec abstime);
@@ -29,7 +27,7 @@ int openConnection(const char* sockname, int msec, const struct timespec abstime
  * @returns 0 on success, -1 on failure.
  * @param sockname must be != NULL.
  * @exception errno is set to EINVAL for invalid params, to ENOTCONN if client is not connected to the socket.
- * @note strict_mode toggled will exit on fatal errors.
+ * @note  will exit on fatal errors.
  * verbose_mode toggled will print the operation details to stdout.
  */
 int closeConnection(const char* sockname);
@@ -42,7 +40,7 @@ int closeConnection(const char* sockname);
  * @exception errno is set to EINVAL for invalid params,to ENOTCONN if client is not connected to the socket, to
  * EBADMSG if the socket responds with an invalid message. errno will also be set if there is no space for creating
  * a new file or - if the file is locked - the owner of the lock is not the client calling this function.
- * @note strict_mode toggled will exit on fatal errors.
+ * @note  will exit on fatal errors.
  * verbose_mode toggled will print the operation details to stdout.
 */
 int openFile(const char* pathname, int flags);
@@ -57,7 +55,7 @@ int openFile(const char* pathname, int flags);
  * @exception errno is set to EINVAL for invalid params,to ENOTCONN if client is not connected to the socket, to
  * EBADMSG if the socket responds with an invalid message. errno will also be set if the file has not been
  * already opened by the client.
- * @note strict_mode toggled will exit on fatal errors.
+ * @note  will exit on fatal errors.
  * verbose_mode toggled will print the operation details to stdout.
 */
 int readFile(const char* pathname, void** buf, size_t* size);
@@ -69,7 +67,7 @@ int readFile(const char* pathname, void** buf, size_t* size);
  * @param dirname == NULL will not store read files inside the cache.
  * @exception errno is set to EINVAL for invalid params,to ENOTCONN if client is not connected to the socket, to
  * EBADMSG if the socket responds with an invalid message.
- * @note strict_mode toggled will exit on fatal errors.
+ * @note  will exit on fatal errors.
  * verbose_mode toggled will print the operation details to stdout.
 */
 int readNFiles(int N, const char* dirname);
@@ -82,7 +80,7 @@ int readNFiles(int N, const char* dirname);
  * @exception errno is set to EINVAL for invalid params,to ENOTCONN if client is not connected to the socket, to
  * EBADMSG if the socket responds with an invalid message. errno is also set if the previous operation performed by
  * the client is an openFile with O_CREATE and O_LOCK set.
- * @note strict_mode toggled will exit on fatal errors.
+ * @note  will exit on fatal errors.
  * verbose_mode toggled will print the operation details to stdout.
 */
 int writeFile(const char* pathname, const char* dirname);
@@ -95,7 +93,7 @@ int writeFile(const char* pathname, const char* dirname);
  * @exception errno is set to EINVAL for invalid params,to ENOTCONN if client is not connected to the socket, to
  * EBADMSG if the socket responds with an invalid message. errno will also be set if the file is not opened by
  * the client.
- * @note strict_mode toggled will exit on fatal errors.
+ * @note  will exit on fatal errors.
  * verbose_mode toggled will print the operation details to stdout.
 */
 int appendToFile(const char* pathname, void* buf, size_t size, const char* dirname);
@@ -107,7 +105,7 @@ int appendToFile(const char* pathname, void* buf, size_t size, const char* dirna
  * @exception errno is set to EINVAL for invalid params,to ENOTCONN if client is not connected to the socket, to
  * EBADMSG if the socket responds with an invalid message. errno is also set if the file is not opened by the
  * client and if another client owns a lock over the file.
- * @note strict_mode toggled will exit on fatal errors.
+ * @note  will exit on fatal errors.
  * verbose_mode toggled will print the operation details to stdout.
 */
 int lockFile(const char* pathname);
@@ -119,7 +117,7 @@ int lockFile(const char* pathname);
  * @exception errno is set to EINVAL for invalid params,to ENOTCONN if client is not connected to the socket, to
  * EBADMSG if the socket responds with an invalid message. errno is also set if the client calling this routine
  * is not the owner of the lock over the requested file.
- * @note strict_mode toggled will exit on fatal errors.
+ * @note  will exit on fatal errors.
  * verbose_mode toggled will print the operation details to stdout.
 */
 int unlockFile(const char* pathname);
@@ -131,7 +129,7 @@ int unlockFile(const char* pathname);
  * @exception errno is set to EINVAL for invalid params,to ENOTCONN if client is not connected to the socket, to
  * EBADMSG if the socket responds with an invalid message. errno is also set if the file is not currently opened
  * by the client calling this routine.
- * @note strict_mode toggled will exit on fatal errors.
+ * @note  will exit on fatal errors.
  * verbose_mode toggled will print the operation details to stdout.
 */
 int closeFile(const char* pathname);
@@ -143,7 +141,7 @@ int closeFile(const char* pathname);
  * @exception errno is set to EINVAL for invalid params,to ENOTCONN if client is not connected to the socket, to
  * EBADMSG if the socket responds with an invalid message. errno is also set if the client calling this routine
  * is not the file's lock owner.
- * @note strict_mode toggled will exit on fatal errors.
+ * @note  will exit on fatal errors.
  * verbose_mode toggled will print the operation details to stdout.
 */
 int removeFile(const char* pathname);
