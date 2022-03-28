@@ -78,6 +78,7 @@ int main(int argc, char* argv[]){
     }
 	if (argc == 1){
 		fprintf(stderr, "No argument, exiting.\n");
+		fprintf(stdout, H_USAGE);
 		return 1;
 	}
 
@@ -110,7 +111,7 @@ int main(int argc, char* argv[]){
 		goto failure;
 	}
 	for (i = 0; i < argc - 1; i++){
-		cmds[i] = (char*) malloc(sizeof(char) * CMD_LEN_MAX);
+		cmds[i] = malloc(sizeof(char) * CMD_LEN_MAX);
 		if (!cmds[i]){
 			perror("malloc");
 			goto failure;
@@ -136,9 +137,8 @@ int main(int argc, char* argv[]){
 		if (argv[i][0] == '-'){
 			int len = strlen(argv[i]);
 			int j = 0;
-			while (j < len){
+			for (;j < len;j++){
 				if (argv[i][j] == '-'){
-					j++;
 					continue;
 				}else{
                //checking if the option is valid
@@ -149,7 +149,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 	}
-   //the is no command
+   //there is no command
 	if (cmds[0][0] == '\0') return 0;
 	// getting the options from argv
 	for (int i = 1; i < argc; i++){
@@ -157,7 +157,6 @@ int main(int argc, char* argv[]){
 		snprintf(opts[i-2], ARG_LEN_MAX, "%s", argv[i]);
 	}
 	verbose_mode = false;
-	strict_mode = true;
 
    //validate commands and its options
 	err = parse_cmdline((const char**) cmds, (const char**) opts, argc - 1);
@@ -191,7 +190,7 @@ int main(int argc, char* argv[]){
 				}
             cwd = malloc(NAME_LEN_MAX * sizeof(char));
             if (!cwd){
-               perror("cwd");
+               perror("malloc");
                return 0;
             }
 	         getcwd(cwd, NAME_LEN_MAX);
@@ -416,7 +415,7 @@ int main(int argc, char* argv[]){
             }else {
                readNFiles(N, NULL);
             }
-            //sleep some milliseconds before the next requeset
+            //sleep some milliseconds before the next request
 				usleep(1000 * sleep_in_msec);
 				break;
 			case 't':
@@ -608,7 +607,7 @@ static int parse_cmdline(const char** cmds, const char** opts, int len){
 			continue;
 		}
 		if (cmds[i][0] == 'f'){
-			// -f takes an only an argument
+			// -f takes only an argument
 			if (opts[i][0] == '\0'){
 				errno = EINVAL;
 				return 1;
@@ -760,3 +759,4 @@ void client_free(){
 	free(read_file);
 	return;
 }
+

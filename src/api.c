@@ -28,7 +28,6 @@ static char file_path[PATH_LEN_MAX];
 static char dir_path[PATH_LEN_MAX];
 
 bool verbose_mode = true;
-bool strict_mode = true;
 
 int openConnection(const char* sockname, int msec, const struct timespec abstime){
 	int err;
@@ -783,8 +782,7 @@ int writeFile(const char* pathname, const char* dirname){
 
 		}
 		errno = err;
-		if (strict_mode) exit(errno);
-		else return -1;
+		exit(errno);
 }
 
 
@@ -1020,8 +1018,7 @@ failure:
 		PRINT_IF(verbose_mode, "%s-> %s %s %s with errno = %s.\n", EXIT_FATAL,
                APPEND_TO_FILE,pathname,dirname, err_str);
 		errno = err;
-		if (strict_mode) exit(errno);
-		else return -1;
+		exit(errno);
 }
 
 int lockFile(const char* pathname){

@@ -240,10 +240,10 @@ int main(int argc, char* argv[]){
                if (refuse_new) {
                   close(fd_client);
                }else{
-                  LOG_EVENT("New client accepted : %d.\n", fd_client);
+                  LOG_EVENT("Connection established with client: %d.\n", fd_client);
                   FD_SET(fd_client, &master_read);
                   online++;
-                  LOG_EVENT("Clients online now : %lu.\n", online);
+                  LOG_EVENT("Clients online now: %lu.\n", online);
                   fd_num = MAX(fd_client, fd_num);
                }
             //new task from a client already part of the set
@@ -273,8 +273,8 @@ int main(int argc, char* argv[]){
    //wait until the thread handling the signals dies
    pthread_join(signal_handler_id, NULL);
    //write results to log file
-   LOG_EVENT("Max size reached by the file storage cache : %3f.\n", cache_get_size_max(cache) * MBYTE);
-   LOG_EVENT("Max number of files stored inside the server : %lu.\n", cache_get_files_max(cache));
+   LOG_EVENT("Max size reached by the file storage cache: %3f.\n", cache_get_size_max(cache) * MBYTE);
+   LOG_EVENT("Max number of files stored inside the server: %lu.\n", cache_get_files_max(cache));
    //print the contents of the cache
    cache_print(cache);
    //free allocated resources and close
@@ -345,3 +345,4 @@ static void* handle_signal(void* sigs){
       }
    }
 }
+

@@ -377,7 +377,7 @@ void cache_print(cache_t* cache){
    printf("Max size reached by the file storage cache: %5f / %5fMB.\n",
           cache->size_reached * MBYTE, cache->size_max * MBYTE);
    printf("The replacement algorithm was executed: %lu time(s).\n", cache->evictions);
-   printf("List of files inside the file storage cache after the server was closed:\n");
+   printf("List of files inside the storage after server shutdown:\n");
    list_print(cache->names);
 }
 
@@ -832,7 +832,7 @@ int cache_appendToFile(cache_t* cache, const char* file_path, void* buf, size_t 
          return OP_FAILURE;
       }
       //there are no bytes to be written to the file, return with success
-      if (size == 0 || buf == NULL) {
+      if (size == 0 || !buf) {
          //release the lock over the whole structure
          CHECK_NZ_RET(err, unlock_for_writing(cache->lock));
          return OP_SUCCESS;

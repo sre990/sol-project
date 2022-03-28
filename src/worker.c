@@ -109,7 +109,7 @@ void* do_job(void* wkr){
       //trying to read a request
       CHECK_FAIL_EXIT(err, readn((long) fd_ready, (void*) req, REQ_LEN_MAX), readn);
       new_req = req;
-      // get a token string from the request and saves it to save_ptr
+      // gets a token string from the request and saves it to save_ptr
       token = strtok_r(new_req, " ", &save_ptr);
       if (!token) {
          free(fd_ready_string);
@@ -171,7 +171,7 @@ void* do_job(void* wkr){
                //client's fd and logging the operation
                memset(req, 0, REQ_LEN_MAX);
                snprintf(req, REQ_LEN_MAX, "%d", err);
-               LOG_EVENT("[%d] readFile %s : %d -> %lu.\n", (int) pthread_self(), file_path, err, read_size);
+               LOG_EVENT("[%d] readFile %s : %d. Bytes: %lu.\n", (int) pthread_self(), file_path, err, read_size);
                CHECK_FAIL_EXIT(new_err, writen((long) fd_ready, (void*) req, strlen(req) + 1), writen);
                if (err==OP_FAILURE) {
                   memset(req, 0, REQ_LEN_MAX);
@@ -204,7 +204,7 @@ void* do_job(void* wkr){
                //client's fd and logging the operation
                memset(req, 0, REQ_LEN_MAX);
                snprintf(req, REQ_LEN_MAX, "%d", err);
-               LOG_EVENT("[%d] readFile %s NULL: %d -> %lu.\n", (int) pthread_self(), file_path, err, read_size);
+               LOG_EVENT("[%d] readFile %s NULL: %d. Bytes: %lu.\n", (int) pthread_self(), file_path, err, read_size);
                CHECK_FAIL_EXIT(new_err, writen((long) fd_ready, (void*) req, strlen(req) + 1), writen);
                if(err==OP_FAILURE) {
                   memset(req, 0, REQ_LEN_MAX);
@@ -272,7 +272,7 @@ void* do_job(void* wkr){
                free(read_file_content);
                read_file_content = NULL;
             }//log event
-            LOG_EVENT("[%d] readNFiles %lu : %d -> %lu.\n", (int) pthread_self(), N, err, tot_read_size);
+            LOG_EVENT("[%d] readNFiles %lu : %d. Bytes: %lu.\n", (int) pthread_self(), N, err, tot_read_size);
             //all read files are handled, deallocate resources
             list_free(read_files);
             read_files = NULL;
@@ -307,7 +307,7 @@ void* do_job(void* wkr){
             //client's fd and logging the operation
             memset(req, 0, REQ_LEN_MAX);
             snprintf(req, REQ_LEN_MAX, "%d", err);
-            LOG_EVENT("[%d] writeFile %s : %d -> %lu.\n\tVictims : %lu.\n", (int) pthread_self(), file_path, err,
+            LOG_EVENT("[%d] writeFile %s : %d. Bytes: %lu.\n\tEvicted: %lu.\n", (int) pthread_self(), file_path, err,
                       write_size, list_get_size(evicted));
             CHECK_FAIL_EXIT(new_err, writen((long) fd_ready, (void*) req, strlen(req) + 1), writen);
             if (err==OP_FAILURE) {
@@ -335,7 +335,7 @@ void* do_job(void* wkr){
                memset(req, 0, REQ_LEN_MAX);
                snprintf(req, REQ_LEN_MAX, "%s", evicted_name);
                CHECK_FAIL_EXIT(new_err, writen((long) fd_ready, (void*) req, REQ_LEN_MAX), writen);
-               LOG_EVENT("\tVictim name: %s.\n", evicted_name);
+               LOG_EVENT("\tEvicted file name: %s.\n", evicted_name);
                //sending the evicted file size and contents to the client's fd
                memset(msg_size, 0, SIZE_LEN);
                snprintf(msg_size, SIZE_LEN, "%lu", evicted_size);
@@ -380,7 +380,7 @@ void* do_job(void* wkr){
             //client's fd and logging the operation
             memset(req, 0, REQ_LEN_MAX);
             snprintf(req, REQ_LEN_MAX, "%d", err);
-            LOG_EVENT("[%d] appendToFile %s : %d -> %lu.\n\tVictims : %lu.\n", (int) pthread_self(), file_path,
+            LOG_EVENT("[%d] appendToFile %s : %d. Bytes: %lu.\n\tEvicted: %lu.\n", (int) pthread_self(), file_path,
                       err, append_size, list_get_size(evicted));
             CHECK_FAIL_EXIT(new_err, writen((long) fd_ready, (void*) req, strlen(req) + 1), writen);
             if (err==OP_FAILURE) {
@@ -408,7 +408,7 @@ void* do_job(void* wkr){
                //sending the return value of the operation to the
                //client's fd and logging the operation
                CHECK_FAIL_EXIT(new_err, writen((long) fd_ready, (void*) req, REQ_LEN_MAX), writen);
-               LOG_EVENT("\tVictim name: %s.\n", evicted_name);
+               LOG_EVENT("\tEvicted file name: %s.\n", evicted_name);
                memset(msg_size, 0, SIZE_LEN);
                snprintf(msg_size, SIZE_LEN, "%lu", evicted_size);
                CHECK_FAIL_EXIT(new_err, writen((long) fd_ready, (void*) msg_size, SIZE_LEN), writen);
@@ -542,7 +542,7 @@ void* do_job(void* wkr){
             memset(pipe_buf, 0, PIPE_LEN_MAX);
             snprintf(pipe_buf, PIPE_LEN_MAX, "%d", SHUTDOWN_WORKER);
             CHECK_FAIL_EXIT(err, writen((long) pipe, (void*) pipe_buf, PIPE_LEN_MAX), writen);
-            LOG_EVENT("Client left %d.\n", fd_ready);
+            LOG_EVENT("Client went offline: %d.\n", fd_ready);
             break;
       }
       free(fd_ready_string);
@@ -550,3 +550,4 @@ void* do_job(void* wkr){
    free(req);
    return NULL;
 }
+

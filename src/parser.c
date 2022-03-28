@@ -64,10 +64,10 @@ int parser_update(parser_t* parser, const char* config_file_path){
    }
 
 	FILE* config_file;
-	if ((config_file = fopen(config_file_path, "r")) == NULL) return -1;
+	if (!(config_file = fopen(config_file_path, "r"))) return -1;
 
 	char buffer[BUF_LEN_MAX];
-	char* stub;
+	char* line;
 	bool workers_set = false;
    bool files_set = false;
    bool cache_set = false;
@@ -78,8 +78,8 @@ int parser_update(parser_t* parser, const char* config_file_path){
 
 	for (size_t i = 0;i < FIELDS;i++){
       //read each line of the config file
-		stub = fgets(buffer, BUF_LEN_MAX, config_file);
-		if (!stub && !feof(config_file)) return -1;
+		line = fgets(buffer, BUF_LEN_MAX, config_file);
+		if (!line && !feof(config_file)) return -1;
       //get number of workers
       if (strncmp(buffer, WORKERS, strlen(WORKERS)) == 0){
          //checking that the number of workers has not been
@@ -236,3 +236,4 @@ policy_t parser_get_policy(const parser_t* parser){
 void parser_free(parser_t* parser){
 	free(parser);
 }
+
