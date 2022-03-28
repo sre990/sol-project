@@ -11,12 +11,12 @@ LOG_FILE=$1
 
 
 echo -e "-${BOLD}READING OPERATIONS${RESET}-"
-# count lines where the regex appears
+# get regular expressions
 READFILE=$(grep "readFile" -c $LOG_FILE)
 READNFILES=$(grep "readNFiles" -c $LOG_FILE)
-# bytes are read after the arrow ->
-READFILE_BYTES=$(grep -E "readFile.*->" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g' | { sum=0; while read num; do ((sum+=num)); done; echo $sum; })
-READNFILES_BYTES=$(grep -E "readNFiles.*->" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g' | { sum=0; while read num; do ((sum+=num)); done; echo $sum; })
+# get bytes read
+READFILE_BYTES=$(grep -E "readFile.*. Bytes:" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g' | { sum=0; while read num; do ((sum+=num)); done; echo $sum; })
+READNFILES_BYTES=$(grep -E "readNFiles.*. Bytes:" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g' | { sum=0; while read num; do ((sum+=num)); done; echo $sum; })
 READS=$((READFILE+READNFILES))
 READ_BYTES=$((READFILE_BYTES+READNFILES_BYTES))
 
@@ -43,13 +43,13 @@ fi
 
 
 echo -e "-${BOLD}WRITING OPERATIONS${RESET}-"
-# count lines where the regex appears
+# get regular expressions
 WRITEFILE=$(grep "writeFile" -c $LOG_FILE)
 APPENDTOFILE=$(grep "appendToFile" -c $LOG_FILE)
 WRITES=$((WRITEFILE+APPENDTOFILE))
-# bytes are read after the arrow ->
-WRITEFILE_BYTES=$(grep -E "writeFile.*->" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g' | { sum=0; while read num; do ((sum+=num)); done; echo $sum; })
-APPENDTOFILE_BYTES=$(grep -E "appendToFile.*->" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g' | { sum=0; while read num; do ((sum+=num)); done; echo $sum; })
+# get bytes written
+WRITEFILE_BYTES=$(grep -E "writeFile.*. Bytes:" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g' | { sum=0; while read num; do ((sum+=num)); done; echo $sum; })
+APPENDTOFILE_BYTES=$(grep -E "appendToFile.*. Bytes:" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g' | { sum=0; while read num; do ((sum+=num)); done; echo $sum; })
 WRITE_BYTES=$((APPENDTOFILE_BYTES+WRITEFILE_BYTES))
 echo -e "writeFile operations: ${WRITEFILE}."
 echo -e "writeFile: ${WRITEFILE_BYTES} bytes."
@@ -74,7 +74,6 @@ fi
 
 
 echo -e "-${BOLD}LOCKING OPERATIONS${RESET}-"
-# count lines where the regex appears
 LOCKFILE=$(grep " lockFile" -c $LOG_FILE)
 UNLOCKFILE=$(grep "unlockFile" -c $LOG_FILE)
 OPENFILECREATELOCK=$(grep -cE "openFile.* 3 : " $LOG_FILE)
@@ -95,19 +94,22 @@ echo -e "closeFile operations: ${CLOSEFILE}."
 echo -e "removeFile operations: ${REMOVEFILE}."
 
 
-
 echo -e "-${BOLD}CACHING${RESET}-"
-# log files have the number of victims inside square brackets
-VICTIMS=$(grep -E "Victims : [1-9+]" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g' | wc -l)
+# get evicted files number
+EVICTED=$(grep -E "Evicted: [1-9+]" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g' | wc -l)
 MAXSIZE_BYTES=$(grep "Max size" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g')
 MAXSIZE_MBYTES=$(echo "${MAXSIZE_BYTES} * 0.000001" | bc -l)
 MAXFILES=$(grep "Max number" $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g')
-echo -e "Replacement algorithm was executed: ${VICTIMS} time(s)."
+SUCCESS=$(grep " : 0\." -c $LOG_FILE)
+FAILURE=$(grep " : 1\." -c $LOG_FILE)
+echo -e "Replacement algorithm was executed: ${EVICTED} time(s)."
 echo -e "Max size reached by the file storage cache: ${MAXSIZE_MBYTES}MBytes."
 echo -e "Max number of files stored inside the server: ${MAXFILES}."
+echo -e "Number of succesful operations: ${SUCCESS}"
+echo -e "Number of failed operations: ${FAILURE}"
 
 echo -e "-${BOLD}REQUESTS HANDLED PER WORKER${RESET}-"
-# log files have worker ids in curly brackets, counting requests per worker
+# worker ids are inside []
 REQUESTS=$(grep -oP '\[.*?\]' $LOG_FILE  | sort | uniq -c | sed -e 's/[ \t]*//' | sed 's/[][]//g')
 while IFS= read -r line; do
 	array=($line)
@@ -115,5 +117,6 @@ while IFS= read -r line; do
 done <<< "$REQUESTS"
 
 echo -e "-${BOLD}ONLINE CLIENTS${RESET}-"
-MAXCLIENTS=$(grep "Clients online now : " $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g' | sort -g -r | head -1)
-echo -e "Maximum number of online clients: ${MAXCLIENTS}."
+MAXCLIENTS=$(grep "Clients online now: " $LOG_FILE | grep -oE '[^ ]+$' | sed -e 's/\.//g' | sort -g -r | head -1)
+echo -e "Max number of clients online reached: ${MAXCLIENTS}."
+

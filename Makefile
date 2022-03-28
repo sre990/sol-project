@@ -116,3 +116,5 @@ clean cleanall:
 	rm -rf $(BUILD_DIR)/* $(OBJ_DIR)/* $(LIB_DIR)/* logs/*.log *.sk test1 test2 test3 stubs* *.txt
 	@touch $(BUILD_DIR)/.keep
 	@touch $(OBJ_DIR)/.keep
+	@touch $(LIB_DIR)/.keep
+
